@@ -9,7 +9,7 @@
 
         <div class="card shadow-lg border-0 rounded-4">
           <div class="card-header bg-primary text-white text-center py-3">
-            <h3 class="mb-0">Login</h3>
+            <h3 class="mb-0">Add Phone Number</h3>
           </div>
 
           <div class="card-body p-4">
@@ -18,34 +18,20 @@
 
               <!-- Movie Name -->
               <div class="mb-3">
-                <label for="name" class="form-label fw-bold">Email</label>
+                <label for="name" class="form-label fw-bold">Phone</label>
                 <!-- <input type="text" id="name" name="name" class="form-control" placeholder="Enter movie name" required> -->
-                {{form.email}}
-                {% if form.email.errors %}
-                <p class="text-danger small">{{form.email.errors.0}}</p>
+                {{form.phone}}
+                {% if form.phone.errors %}
+                <p class="text-danger small">{{form.phone.errors.0}}</p>
                 {% endif %}
                 
               </div>
 
-              <!-- Password --> 
-              <div class="mb-3">
-                <label for="photo" class="form-label fw-bold">Password</label>
-                <!-- <input type="file" id="photo" name="photo" class="form-control" required> -->
-                 {{form.password}}
-                {% if form.photo.errors %}
-                <p class="text-danger small">{{form.password.errors.0}}</p>
-                {% endif %}
-              </div>
-
-
               <div class="d-flex justify-content-end mt-4 btn-wrap">
                 <button type="submit" class="btn btn-outline-accent btn-accent-arrow">
-                  login<i class="icon icon-ns-arrow-right"></i>
+                  ADD<i class="icon icon-ns-arrow-right"></i>
                 </button>
               </div>
-              {% if error %}
-              <p class="text-danger small text-center">{{error}}</p>
-              {% endif %}
             </form>
           </div>
         </div>
@@ -55,4 +41,4 @@
   </div>
 </section>
 
-{% endblock %}   
+{% endblock %}
