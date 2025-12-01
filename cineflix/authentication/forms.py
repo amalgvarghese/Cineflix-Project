@@ -26,6 +26,15 @@ class SignUpForm(forms.ModelForm):
             'email' : forms.EmailInput(attrs={'class':'form-control'}),
         }
 
+    def clean(self):
+
+        cleaned_data =  super().clean()
+
+        email = cleaned_data.get('email')
+
+        if Profile.objects.filter(username=email).exists():
+
+            self.add_error('email','this email is already registered')
 
 class AddPhoneForm(forms.Form):
 

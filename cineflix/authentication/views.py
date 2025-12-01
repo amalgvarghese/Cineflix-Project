@@ -8,11 +8,13 @@ from django.contrib.auth import authenticate,login,logout
 
 from django.contrib.auth.hashers import make_password
 
-from cineflix.utils import generate_password,generate_otp,send_otp
+from cineflix.utils import generate_password,generate_otp,send_otp,send_email
 
 from .models import OTP
 
 from django.utils import timezone
+
+import threading
 
 # Create your views here.
 
@@ -108,11 +110,18 @@ class SignUpView(View):
 
             context = {'user':f'{user.first_name} {user.last_name}','username':user.email,'password':password}
 
+            # send_email(recipient,template,subject,context)
+
+            thread = threading.Thread(target=send_email,args=(recipient,template,subject,context))
+
+            thread.start()
+
             return redirect('login')
+            
         
         data = {'form':form}
 
-        return render(request,self.template)
+        return render(request,self.template,context=data)
     
 
 class ProfileView(View):
@@ -182,7 +191,7 @@ class VerifyOTPView(View):
 
         remaining_time = 300
 
-        data = {'form':form,'remaining_time':remaining_time}
+        data = {'form':form,'remaining_time':remaining_time,'phone':phone}
 
         return render(request,self.template,context=data)
     
@@ -232,5 +241,48 @@ class VerifyOTPView(View):
                     error = 'Invalid OTP'
 
         data = {'form':form,'remaining_time':remaining_time,'error':error}
+
+        return render(request,self.template,context=data)
+    
+
+class ChangePasswordOTPView(View):
+
+    template = 'authentication/password_otp.html'
+
+    form_class = OTPForm
+
+    def get(self,request,*args,**kwargs):
+
+        form = self.form_class()
+        
+        otp = generate_otp()
+
+        user = request.user
+
+        otp_obj,created = OTP.objects.get_or_create(profile=user)
+
+        otp_obj.email_otp = otp
+
+        otp_obj.save()
+
+        recipient = user.email
+
+        template = 'emails/password-otp-email.html'
+
+        subject = 'Cineflix :OTP For chamge password'
+
+        context = {'user':f'{user.first_name} {user.last_name}','otp':otp}
+
+            # send_email(recipient,template,subject,context)
+
+        thread = threading.Thread(target=send_email,args=(recipient,template,subject,context))
+
+        thread.start()
+
+        request.session['otp_time'] = timezone.now().timestamp()
+
+        remaining_time = 300
+
+        data = {'form':form,'remaining_time':remaining_time}
 
         return render(request,self.template,context=data)

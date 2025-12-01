@@ -2,7 +2,11 @@
 
 <section class="container my-4">
   <div class="card p-4 shadow-sm">
-    <h4 class="mb-3">Profile Details</h4>
+    <div class="d-flex justify-content-between align-items-center">
+      <h4 class="mb-3">Profile Details</h4>
+      <a href="{% url 'password-otp' %}" class="btn btn-primary btn-rounded">Change Password</a>
+    </div>
+
     <div class="row mb-2">
       <div class="col-md-4 fw-bold">Name:</div>
       <div class="col-md-8"> {{user.first_name}} {{user.last_name}}</div>
