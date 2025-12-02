@@ -2,7 +2,7 @@ from django.shortcuts import render,redirect
 
 from django.views import View
 
-from .forms import LoginForm,SignUpForm,AddPhoneForm,OTPForm
+from .forms import LoginForm,SignUpForm,AddPhoneForm,OTPForm,ChangePasswordForm
 
 from django.contrib.auth import authenticate,login,logout
 
@@ -269,7 +269,7 @@ class ChangePasswordOTPView(View):
 
         template = 'emails/password-otp-email.html'
 
-        subject = 'Cineflix :OTP For chamge password'
+        subject = 'Cineflix :OTP For change password'
 
         context = {'user':f'{user.first_name} {user.last_name}','otp':otp}
 
@@ -284,5 +284,86 @@ class ChangePasswordOTPView(View):
         remaining_time = 300
 
         data = {'form':form,'remaining_time':remaining_time}
+
+        return render(request,self.template,context=data)
+    
+
+    def post(self,request,*args,**kwargs):
+
+        form = self.form_class(request.POST)
+        
+        if form.is_valid():
+
+            user = request.user
+
+            db_otp = user.otp.email_otp
+
+            input_otp =form.cleaned_data.get('otp')
+
+            otp_time = request.session.get('otp_time')  
+
+            current_time = timezone.now().timestamp()
+
+            if otp_time :
+
+                elapsed = current_time - otp_time
+
+                remaining_time = max(0, 300 - int(elapsed))
+
+                if elapsed > 300 :
+
+                    error = 'OTP expired Request a Newone'
+
+                elif db_otp == input_otp:
+
+                    request.session.pop('otp_time')
+                    
+                    user.otp.email_otp_verified = True
+
+                    user.otp.save()
+
+                    return redirect('change-password')
+                
+                else :
+
+
+                    error = 'Invalid OTP'
+
+        data = {'form':form,'remaining_time':remaining_time,'error':error}
+
+        return render(request,self.template,context=data)
+    
+
+class ChangePasswordView(View):
+
+    template = 'authentication/change-password.html'
+
+    form_class = ChangePasswordForm
+
+    def get(self,request,*args,**kwargs):
+        
+        form = self.form_class()
+
+        data = {'form':form}
+
+        return render(request,self.template,context=data)
+    
+    def post(self,request,*args,**kwargs):
+
+        form = self.form_class(request.POST)
+
+        if form.is_valid():
+
+            user = request.user
+
+            password = form.cleaned_data.get('new_password')
+
+            user.password = make_password(password)
+
+            user.save()
+
+            return redirect('login')
+        
+        data = {'form':form}
 
         return render(request,self.template,context=data)
