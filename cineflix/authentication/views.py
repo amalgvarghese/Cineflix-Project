@@ -16,6 +16,14 @@ from django.utils import timezone
 
 import threading
 
+from django.contrib.auth.decorators import login_required
+
+from django.utils.decorators import method_decorator
+
+from.permissions import permitted_user_roles
+
+
+
 # Create your views here.
 
 class LoginView(View):
@@ -59,8 +67,9 @@ class LoginView(View):
         data = {'form' :form,'error':error}
 
         return render(request,self.template,context=data)
+    
 
-
+@method_decorator(login_required(login_url='login'),name='dispatch')
 class LogoutView(View):
 
     def get(self,request,*args,**kwargs):
@@ -123,7 +132,7 @@ class SignUpView(View):
 
         return render(request,self.template,context=data)
     
-
+@method_decorator(permitted_user_roles(roles=['User','Admin']),name='dispatch')
 class ProfileView(View):
 
     template = 'authentication/profile.html'
@@ -132,6 +141,8 @@ class ProfileView(View):
 
         return render(request,self.template)
     
+
+@method_decorator(permitted_user_roles(roles=['User']),name='dispatch')
 class AddPhoneView(View):
 
     template = 'authentication/phone.html'
@@ -163,6 +174,7 @@ class AddPhoneView(View):
         return render(request,self.template,context=data)
     
 
+@method_decorator(permitted_user_roles(roles=['User']),name='dispatch')
 class VerifyOTPView(View):
 
     template = 'authentication/otp.html'
@@ -341,12 +353,20 @@ class ChangePasswordView(View):
     form_class = ChangePasswordForm
 
     def get(self,request,*args,**kwargs):
+
+        user=request.user
+
+        if user.otp.email_otp_verified:
+
+            form=self.form_class()
+
+            data={'form':form}
+
+            return render(request,self.template,context=data)
         
-        form = self.form_class()
+        else:
 
-        data = {'form':form}
-
-        return render(request,self.template,context=data)
+            return redirect('password-otp')
     
     def post(self,request,*args,**kwargs):
 
@@ -361,6 +381,10 @@ class ChangePasswordView(View):
             user.password = make_password(password)
 
             user.save()
+
+            user.otp.email_otp_verified=False
+
+            user.otp.save()
 
             return redirect('login')
         

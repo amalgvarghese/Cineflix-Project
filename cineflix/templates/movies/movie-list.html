@@ -8,8 +8,11 @@
 				<div class="col-md-12">
 
 					<div class="d-flex justify-content-end btn-wrap">
-
+						
+						{% allowed_roles request '["Admin"]' as allow %}
+						{% if allow %}
 						<a href="{% url 'movie-create' %}" class="btn btn-outline-accent btn-accent-arrow" >Create Movie <i class="Icon icon-ns-arrow-right"></i></a>
+						{% endif %}
 					</div>
 
 					<div class="section-header align-center">
