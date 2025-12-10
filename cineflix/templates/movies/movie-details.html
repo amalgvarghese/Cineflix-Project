@@ -13,7 +13,8 @@
       <a href="{% url 'movie-delete' movie.uuid %}"><i class="fa fa-solid fa-trash text-white mx-2"></i></a>
       {% endif %}
       <div class="d-flex align-items-center mb-2">
-        <span class="match me-3">{{ movie.runtime|time:'H i'}}</span>
+        {% display_time movie.runtime as runtime %} 
+        <span class="match me-3">{{runtime}}</span>
         <span class="me-3">{{movie.release_year|date:'Y'}}</span>
         <span class="badge bg-dark me-3 px-3 py-1 ">{{movie.certification}}</span>
         <span>{{ movie.industry.name}}</span>

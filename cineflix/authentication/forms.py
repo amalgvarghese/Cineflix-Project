@@ -66,7 +66,7 @@ class OTPForm(forms.Form):
 
 class ChangePasswordForm(forms.Form):
 
-    new_password = forms.CharField(widget=forms.PasswordInput(attrs={'class':'form-control'}))
+    new_password = forms.CharField(widget=forms.PasswordInput(attrs={'class':'form-control','required':'required'}))
 
     confirm_password = forms.CharField(widget=forms.PasswordInput(attrs={'class':'form-control'}))
 

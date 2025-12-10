@@ -20,31 +20,35 @@
               <div class="mb-3">
                 <label for="name" class="form-label fw-bold">Email</label>
                 <!-- <input type="text" id="name" name="name" class="form-control" placeholder="Enter movie name" required> -->
-                {{form.email}}
-                {% if form.email.errors %}
-                <p class="text-danger small">{{form.email.errors.0}}</p>
-                {% endif %}
-                
+                 {{form.email}}
+                 {% if form.email.errors %}
+                 <p class="text-danger small">{{form.email.errors.0}}</p>
+                 {% endif %}
               </div>
 
-              <!-- Password --> 
+              <!-- Banner Image -->
               <div class="mb-3">
                 <label for="photo" class="form-label fw-bold">Password</label>
                 <!-- <input type="file" id="photo" name="photo" class="form-control" required> -->
-                 {{form.password}}
-                {% if form.photo.errors %}
-                <p class="text-danger small">{{form.password.errors.0}}</p>
-                {% endif %}
-              </div>
+                  <div class="position-relative">
+                   {{form.password}}
 
+                  <i class="fa-regular fa-eye-slash position-absolute top-50 end-0 translate-middle-y pe-4"
+                     style="cursor:pointer;font-size:18px;" onclick="displayPassword(this,'{{ form.new_password.id_for_label }}')">
+  </i>
+                  
+  </div>
+                 {% if form.password.errors %}
+                 <p class="text-danger small">{{form.password.errors.0}}</p>
+                 {% endif %}
 
               <div class="d-flex justify-content-end mt-4 btn-wrap">
                 <button type="submit" class="btn btn-outline-accent btn-accent-arrow">
-                  login<i class="icon icon-ns-arrow-right"></i>
+                  Login<i class="icon icon-ns-arrow-right"></i>
                 </button>
               </div>
-              {% if error %}
-              <p class="text-danger small text-center">{{error}}</p>
+              {% if error%}
+              <p class="text-danger text-center small">{{error}}</p>
               {% endif %}
             </form>
           </div>
@@ -55,4 +59,4 @@
   </div>
 </section>
 
-{% endblock %}   
+{% endblock %}

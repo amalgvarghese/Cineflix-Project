@@ -37,7 +37,8 @@
 
 											<ul style="display: flex; list-style: none; justify-content: center;">
                                                 <li  class="mx-4">{{ movie.release_date | date:'Y' }}</li>
-                                                <li class="mx-4">{{ movie.runtime | time:'h i' }}</li>
+												{% display_time movie.runtime as runtime %} 
+                                                <li class="mx-4">{{ runtime}}</li>
                                                 <li class="mx-4">{{ movie.certification }}</li>
                                             </ul>
 											

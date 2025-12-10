@@ -51,8 +51,7 @@
 						<div class="right-element">
 							<a href="#" class="user-account for-buy" id="navbarDropdown" data-bs-toggle="dropdown"><i
 									class="icon icon-user"></i><span>{{user.username}}</span></a>
-							<a href="#" class="cart for-buy"><i class="icon icon-clipboard"></i><span>Cart:(0
-									$)</span></a>
+							<a href="{% url 'subscription-list' %}" class="cart for-buy"><span>Subscribe Now</span></a>
 
 							<ul class="dropdown-menu rounded bg-light border border-1 " aria-labelledby="navbarDropdown">
 								{% if request.user.is_authenticated %}
@@ -305,6 +304,20 @@
 		crossorigin="anonymous"></script>
 	<script src="/static/assets/js/plugins.js"></script>
 	<script src="/static/assets/js/script.js"></script>
+
+
+<script>
+  function displayPassword(icon,passTag){
+
+    let p=document.getElementById(passTag);
+    p.type = p.type==='password' ? 'text' : 'password';
+    icon.classList.toggle('fa-eye');
+    icon.classList.toggle('fa-eye-slash');
+
+
+  }
+                     
+</script>
 
 </body>
 

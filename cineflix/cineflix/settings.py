@@ -43,7 +43,8 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
     'movies',
     'embed_video',
-    'authentication'
+    'authentication',
+    'subscriptions'
 ]
 
 MIDDLEWARE = [
@@ -70,7 +71,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
             ],
 
-            'builtins':['authentication.role_permissions']
+            'builtins':['authentication.role_permissions','movies.custom_tags']
         },
     },
 ]
