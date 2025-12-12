@@ -51,7 +51,10 @@
 						<div class="right-element">
 							<a href="#" class="user-account for-buy" id="navbarDropdown" data-bs-toggle="dropdown"><i
 									class="icon icon-user"></i><span>{{user.username}}</span></a>
+										{% allowed_roles request '["User","Admin"]' as allow %}
+							{% if allow %}
 							<a href="{% url 'subscription-list' %}" class="cart for-buy"><span>Subscribe Now</span></a>
+							{% endif %}
 
 							<ul class="dropdown-menu rounded bg-light border border-1 " aria-labelledby="navbarDropdown">
 								{% if request.user.is_authenticated %}

@@ -1,6 +1,9 @@
 from django.shortcuts import render
 
 from django.views import View 
+
+from .models import SubscriptionPlans
+
 # Create your views here.
 
 class SubscriptonView(View):
@@ -9,5 +12,11 @@ class SubscriptonView(View):
 
     def get(self,request,*args,**kwargs):
 
-        return render(request,self.template)
+        plans = SubscriptionPlans.objects.all()
+
+        data = {'plans':plans}
+
+        return render(request,self.template,context=data)
+    
+
 

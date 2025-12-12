@@ -44,7 +44,8 @@ INSTALLED_APPS = [
     'movies',
     'embed_video',
     'authentication',
-    'subscriptions'
+    'subscriptions',
+    'payments',
 ]
 
 MIDDLEWARE = [
