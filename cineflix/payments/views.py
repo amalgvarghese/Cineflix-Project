@@ -1,4 +1,4 @@
-from django.shortcuts import render
+from django.shortcuts import render,redirect
 
 from django.views import View
 
@@ -11,6 +11,12 @@ from authentication.permissions import permitted_user_roles
 import razorpay
 
 from decouple import config
+
+from payments.models import Transaction
+
+from django.db import transaction
+
+from django.utils import timezone
 
 # Create your views here.
 
@@ -29,16 +35,85 @@ class RazorPayView(View):
 
         plan = SubscriptionPlans.objects.get(uuid=uuid)
 
-        user_subscription = UserSubscriptions.objects.create(profile=user,plan=plan)
+        with transaction.atomic():    
 
+            user_subscription = UserSubscriptions.objects.create(profile=user,plan=plan)
+
+
+            client = razorpay.Client(auth=(config("RZP_CLIENT_ID"), config( "RZP_CLIENT_SECRET")))
+
+            data = { "amount": plan.amount*100, "currency": "INR", "receipt": "order_rcptid_11" }
+
+            payment = client.order.create(data=data) 
+
+            rzp_order_id = payment.get('id')
+
+            transaction_obj = Transaction.objects.create(user_subscription=user_subscription,rzp_order_id=rzp_order_id,amount=plan.amount)
+
+            data = {'RZP_CLIENT_ID':config('RZP_CLIENT_ID'),'amount':plan.amount,'order_id':rzp_order_id}
+
+            return render(request,self.template,context=data)
+        
+class PaymentVerifyView(View):
+
+    def post(self,request,*args,**kwargs):
+
+        print(request.POST)
+
+        rzp_order_id = request.POST.get('razorpay_order_id')
+
+        rzp_payment_id = request.POST.get('razorpay_payment_id')
+
+        rzp_payment_signature = request.POST.get('razorpay_signature')
+
+        transaction_obj = Transaction.objects.get(rzp_order_id=rzp_order_id)
+
+        transaction_obj.rzp_payment_id =rzp_payment_id
+        
+        transaction_obj.rzp_payment_signature = rzp_payment_signature
+
+        transaction_obj.save()
+
+        import razorpay
 
         client = razorpay.Client(auth=(config("RZP_CLIENT_ID"), config( "RZP_CLIENT_SECRET")))
 
-        data = { "amount": plan.amount*100, "currency": "INR", "receipt": "order_rcptid_11" }
-        payment = client.order.create(data=data) 
+        paid=client.utility.verify_payment_signature({
+                                                        'razorpay_order_id': rzp_order_id,
+                                                        'razorpay_payment_id': rzp_payment_id,
+                                                        'razorpay_signature': rzp_payment_signature
+                                                    })
+        
+        if paid :
 
-        return render(request,self.template)
+            transaction_obj.status = 'Success'
 
+            transaction_obj.save()
 
+            user_subscription = transaction_obj.user_subscription
 
+            start_date = timezone.now()
 
+            end_date = start_date+timezone.timedelta(days=30)
+
+            # start_date = timezone.now()
+
+            # end_date = start_date+timezone.timedelta(days=30)
+
+            user_subscription.start_date = start_date
+
+            user_subscription.end_date = end_date
+
+            user_subscription.active = True
+
+            user_subscription.save()
+
+            return redirect('home')
+        
+        else:
+
+            transaction_obj.status = 'Failed'
+
+            transaction_obj.save()
+
+            return redirect('razorpay',uuid=user_subscription.plan.uuid)

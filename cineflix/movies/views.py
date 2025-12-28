@@ -12,6 +12,12 @@ from django.utils.decorators import method_decorator
 
 from authentication.permissions import permitted_user_roles
 
+from cineflix.utils import get_recommended_movies
+
+from subscriptions.models import UserSubscriptions
+
+from django.contrib import messages
+
 # Create your views here.
 
 class HomeView(View):
@@ -148,17 +154,20 @@ class MovieCreateView(View):
     
     def post(self,request,*args,**kwargs):
 
-        form =  MovieForm(request.POST,request.FILES)
+        form =  self.form_class(request.POST,request.FILES)
 
         if form.is_valid():
 
             form.save()
 
-            return redirect('movie-list')
-    
-        print(form.errors)
+            messages.success(request,'movie created succesfully')
 
+            return redirect('movie-list')
+        
         data = {'form':form}
+
+        messages.error(request,'movie creation failed')
+
 
         return render(request,self.template,context=data)
     
@@ -172,7 +181,9 @@ class MovieDetailsView(View):
 
         movie = Movie.objects.get(uuid=uuid)
 
-        data = {'movie':movie,'page':movie.name}
+        recommended_movies = get_recommended_movies(movie)
+
+        data = {'movie':movie,'page':movie.name,'recommended_movies':recommended_movies}
         
         return render(request,self.template,context=data)
 
@@ -231,5 +242,45 @@ class MovieDeleteView(View):
 
         movie.save()
 
+        messages.success(request,'movie deleted succesfully')
 
         return redirect('movie-list')
+    
+
+
+@method_decorator(permitted_user_roles(['User']),name='dispatch') 
+
+class PlayMovie(View):
+
+    template = 'movies/movie-play.html'
+
+    def get(self,request,*args,**kwargs):
+
+        user = request.user
+
+        plan = None
+
+        try :
+            
+            plan = UserSubscriptions.objects.filter(profile=user,active=True).latest('created_at')
+        
+        except :
+
+            pass
+
+        if plan:
+
+            uuid = kwargs.get('uuid')
+
+            movie = Movie.objects.get(uuid=uuid)
+
+            data = {'movie':movie,'page':movie.name}
+
+            return render(request,self.template,context=data)
+        
+        else:
+
+            messages.error(request,'you must subscribe a plan before watching')
+
+            return redirect('subscriptions-list')
+

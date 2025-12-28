@@ -76,9 +76,9 @@ class UserSubscriptions(BaseClass):
     
     class Meta:
 
-        verbose_name = 'Subscription Plans'
+        verbose_name = 'User Subscription '
 
-        verbose_name_plural = 'Subscription Plans'
+        verbose_name_plural = 'User Subscription'
 
     def __str__(self):
 
