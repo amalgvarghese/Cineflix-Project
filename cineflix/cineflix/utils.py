@@ -12,12 +12,6 @@ from django .core.mail import EmailMultiAlternatives
 
 from movies.models import Movie
 
-import pandas as pd
-
-from sklearn.metrics.pairwise import cosine_similarity
-
-from sklearn.feature_extraction.text import TfidfVectorizer
-
 
 def generate_password():
 
