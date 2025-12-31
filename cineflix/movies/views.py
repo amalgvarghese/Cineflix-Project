@@ -282,5 +282,5 @@ class PlayMovie(View):
 
             messages.error(request,'you must subscribe a plan before watching')
 
-            return redirect('subscriptions-list')
+            return redirect('subscription-list')
 
